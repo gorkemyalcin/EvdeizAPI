@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" />
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.12.1.min.js">
+                $("#startDate").click(function () {
+                    var today = new Date();
+                    var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+                    $("#startDate").min(date);
+
+                });
+                $("#endDate").click(function () {
+                    var today = new Date();
+                    var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+                    $("#endDate").min(date);
+
+                });
+                
+            
+            </script>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+<script
+	src='https://kit.fontawesome.com/a076d05399.js'></script>
+<script type="text/javascript" src="./request.js" ></script>
+<script>
+               
+                var map;
+                var latitude = 38.3266599;
+                var longitude = 26.7469164;
+                var latLng = { lat: null , lng: null };
+                var uniqueId=1;
+                var markers={};
+                function initMap() {
+                	var mapOptions = {
+                            center: new google.maps.LatLng(latitude, longitude),
+                            zoom: 9,
+                            mapTypeId: google.maps.MapTypeId.ROADMAP,
+                            disableDoubleClickZoom: true, // disable the default map zoom on double click
+                        };
+                    var map = new google.maps.Map(document.getElementById("eventMap"), mapOptions);
+                	
+               
+                    var id=0;
+                    if(latLng.lat != null && latLng.lng != null){
+                    	var marker = new google.maps.Marker({
+                            position: { lat: latLng.lat, lng: latLng.lng },
+                            map: map,
+                            title: latLng.lat + ', ' + latLng.lng
+                        });
+                    	var content = 'Latitude: ' + latLng.lat + '<br />Longitude: ' + latLng.lng;
+                        var infoWindow = new google.maps.InfoWindow({
+                            content: content
+                        });
+                        infoWindow.open(map, marker);
+                    }
+                   
+                    google.maps.event.addListener(map, 'dblclick', function (event) {
+                    	if(id != 0){
+            				deleteMarker(id);
+                    	}
+                        var marker = new google.maps.Marker({
+                            position: event.latLng,
+                            map: map,
+                            title: event.latLng.lat() + ', ' + event.latLng.lng()
+                        });
+                        latLng.lat = event.latLng.lat();
+                        latLng.lng = event.latLng.lng();
+						
+                        id = marker.__gm_id;
+                        markers[id] = marker;
+                        google.maps.event.addListener(marker, "rightclick", function (point) { id = this.__gm_id; deleteMarker(id) });
+                        
+                        marker.addListener('click', function () {
+                            var content = 'Latitude: ' + latLng.lat + '<br />Longitude: ' + latLng.lng;
+                            var infoWindow = new google.maps.InfoWindow({
+                                content: content
+                            });
+                            infoWindow.open(map, marker);
+                        });
+                    });
+         
+                }
+                function deleteMarker(id) {
+                		marker = markers[id]; 
+                        marker.setMap(null);                      
+                };
+            </script>
+
+                <script
+                src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCcpzMBzTumvZag8870yHgKBTKI7HFfLQ4&callback=initMap"
+                async defer></script>
+<style>
+        #myForm {
+            display: inline-block;
+
+        }
+        
+        #addCompany {
+            border: ridge;
+            padding:5px;
+        }
+        
+        #myForm input {
+            display: block;
+            font-size: 11px;
+            padding: 4px 2px;
+            border: solid 1px #aacfe4;
+            width: 300px;
+            height: 28px;
+            margin: 2px 10px 20px 110px;
+        }
+        
+        #myForm textarea {
+            display: block;
+            font-size: 11px;
+            padding: 4px 2px;
+            border: solid 1px #aacfe4;
+            width: 300px;
+            height: 80px;
+            margin: 2px 10px 20px 110px;
+        }
+
+        #myForm select {
+            display: block;
+            font-size: 11px;
+            padding: 4px 2px;
+            border: solid 1px #aacfe4;
+            width: 300px;
+            height: 30px;
+            margin: 2px 10px 20px 110px;
+        }
+
+        #myForm label {
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+            float: left;
+        }
+
+        #eventMap {
+            height: 300px;
+            width: 420px;
+        }
+
+        #parkingMap {
+            height: 300px;
+            width: 420px;
+        }
+
+        #page {
+            display: flex;
+            width: 100%;
+        }
+
+        #addEvent {
+            width: 65%;
+            background-color: white;
+        }
+
+        #editEvent {
+            width: 35%;
+            background-color: white;
+        }
+
+        .editEvent {
+            display: flex;
+
+        }
+
+        #events {
+            width: 60%;
+            height: 35%;
+            top: 5%;
+            margin: 0 auto;
+            position: relative;
+            overflow-y: scroll;
+            background-color: #AB9999;
+        }
+
+        .event {
+            border-style: double;
+            margin: 15px;
+        }
+
+        .eventDate {
+            border-width: 2px;
+        }
+
+        .eventPlace {
+            border-width: 2px;
+            width: 60px;
+            height: 40px;
+            float: left;
+        }
+
+
+        .bottomDiv {
+            background-color: tomato;
+            overflow: auto;
+        }
+
+        .selectionButton {
+            float: right;
+        }
+    </style>
+</head>
+<body>
+	<div id="page">
+        <div id="addEvent">
+            <div class="" style="text-align: center;">
+                <h1 style="text-align: center;">Urla Etkinlikler</h1>
+                <div id="myForm">
+                    <form id="eventForm">
+                        <label>Başlık: *</label><input id="title" type="text" name="title"
+                            placeholder="Etkinlik başlığı"  />
+                        <label>Etkinlik türü: *</label>
+                        <select id="type" name="type"  >
+                            <option value="" disabled selected hidden>Etkinlik türünü seç</option>
+                            <option value="FESTİVAL">Festival</option>
+                            <option value="TİYATRO">Tiyatro</option>
+                            <option value="SPOR">Spor</option>
+                            <option value="KONFERANS">Konferans</option>
+                            <option value="YARIŞMA">Yarışma</option>
+                            <option value="KONSER">Konser</option>
+                            <option value="GEZİ">Gezi</option>
+                            <option value="SANAT">Sanat</option>
+                            <option value="diger">Diğer</option>
+                        </select>
+                        <div id="selectEnginar" style="display: none">
+                            <label class="enginar">Enginar Festivali</label><br>
+                            <label class="enginar">Evet</label>
+                            <input type="radio" id="enginar" name="enginar" value="yes">
+                            <label class="enginar">Hayır</label>
+                            <input type="radio" id="enginar" name="enginar" value="no">
+                        </div>
+                        <label>Açıklama: *</label><textarea name="description" placeholder="Etkinlik hakkında..."
+                            id="description" ></textarea>
+                           <label>Başlangıç Tarihi: *</label> <input type="date" name="startDate"
+                            placeholder="Başlangıç Tarihi" min="2020-01-01"  id="startDate" />
+                        <label>Başlangıç Saati: *</label> <input type="time" name="startTime"
+                            placeholder="Başlangıç Saati"  id="startTime" max="23:59" />
+                        <label>Bitiş Tarihi:</label> <input id="endDate" name="endDate" type="date"
+                            placeholder="Bitiş Tarihi (Opsiyonel)" />
+                        <label>Bitiş Saati:</label> <input id="endTime" name="endTime" type="time"
+                            placeholder="Bitiş Saati (Opsiyonel)" max="23:59" />
+                        <label>Yer: *</label> <input type="text" name="place" placeholder="Etkinlik yeri" id="place" />
+                        <label>Tam Adres: *</label> <input type="text" name="address" placeholder="Tam Adres"
+                            id="address" />
+                        <label>Şirket:</label>
+                            <select id="company" name="company" required >
+                                <option  value="unselected" disabled selected hidden>Şirket/Kurum seç</option>
+                               <!-- <option value="sirket1">Şirket1</option>
+                                <option value="sirket2">Şirket2</option>
+                                <option value="municipality"> municipality</option>-->
+                                <option value="diger">Diğer</option>
+                            </select>
+                             <div id="addCompany" style="display:none">
+                                <form>
+                                    <label>Şirket Adı: *</label>
+                                    <input id="companyName" type="text" name="name"
+                                    placeholder="Şirket adı" required />
+        
+                                    <label>Email: </label>
+                                    <input id="companyEmail" type="text" name="email"
+                                    placeholder="Email" required />
+        
+                                    <label>Telefon:</label>
+                                    <input id="companyTelephone" type="text" name="telephone"
+                                    placeholder="Telefon" required />
+        
+                                    <label>Açıklama:</label>
+                                    <textarea id="companyDescription" type="text" name="description"
+                                    placeholder="Şirket hakkında..." required ></textarea>
+        
+                                    <!--<label>Kuruluş Tarihi: </label> 
+                                      <input type="date" name="creationDate"
+                                    placeholder="Kuruluş Tarihi" required id="companyCreationDate" />--> 
+                                    <label >Logo:</label> 
+                                    <input type="file" name="image" value="resim  seç"
+                           			accept="image/png, image/jpeg, image/jpg" id="logo" />
+                                    <input type="button" id="submitCompanyForm" value="Kaydet" " />
+                                </form>
+                            </div>
+                        <label >Fotoğraf: *</label> <input type="file" name="image" value="resim  seç"
+                            accept="image/png, image/jpeg, image/jpg" id="image" />
+                          <div style="padding:10px">
+                            <div id="eventMap"></div>
+                        </div>
+                        
+                    </form>
+                    <input type="button" id="submitForm" value="Kaydet"/>
+                    <input type="button" id="updateEventButton" value="Etkinliği Düzenle" style="display:none;"/>
+                    
+                  </div>
+            </div>
+            
+
+        </div>
+        <div id="editEvent">
+             <div id="events"></div>
+        </div>
+    </div>
+</body>
+
+<script>
+
+	var eventId=0;
+	function convertDate(date){
+		var day = date.substring(0, 2);
+		var month = date.substring(3, 5);
+		var year = date.substring(6, 10);
+		return (year + '-' + month + '-' + day);
+	}
+	function convertDate2(date){
+		var day = date.substring(0, 4);
+		var month = date.substring(5, 7);
+		var year = date.substring(8, 10);
+		return (year + '.' + month + '.' + day);
+	}
+	function editSelectedEvent(allEvents,classEventName){
+		selectedEventId=classEventName.split('-')[1];
+		for (i = 0; i < allEvents.length; i++) {
+			if(parseInt(selectedEventId) == parseInt(allEvents[i].id)){
+				document.getElementById("updateEventButton").style.display = "block";
+				document.getElementById("submitForm").style.display = "none";
+				document.getElementById("title").value = allEvents[i].name; //oldu
+				document.getElementById("type").value = allEvents[i].type; //oldu
+				document.getElementById("description").value=allEvents[i].description; //oldu
+			   	document.getElementById("startTime").value=allEvents[i].startTime;//oldu
+				document.getElementById("endTime").value=allEvents[i].endTime; //oldu
+				document.getElementById("address").value=allEvents[i].address;//oldu
+				document.getElementById("place").value=allEvents[i].place; //oldu
+				document.getElementById("startDate").value = convertDate(allEvents[i].startDate);
+				document.getElementById("endDate").value = convertDate(allEvents[i].endDate);
+				latLng.lat=parseFloat(allEvents[i].latitude);
+				latLng.lng=parseFloat(allEvents[i].longitude);
+				if(allEvents[i].company == null){
+					document.getElementById("company").value = "unselected" //oldu
+				}
+				else{
+					document.getElementById("company").value = allEvents[i].company.name; //oldu
+				}
+				eventId=allEvents[i].id;
+				}			 
+		}
+		initMap();		
+	
+	}
+	
+    $('#type').on('click', function(){
+        var eventType = document.getElementById("type").value;
+        if(eventType=="FESTİVAL"){
+            $("#selectEnginar").show();
+        }
+        else{
+            $("#selectEnginar").hide();
+        }
+    });
+    $('#company').on('click', function(){
+        var companyName = document.getElementById("company").value;
+        if(companyName=="diger"){
+            $("#addCompany").show();
+        }
+        else{
+            $("#addCompany").hide();
+        }
+    });
+	
+ 
+
+</script>
+ 
+</html>
